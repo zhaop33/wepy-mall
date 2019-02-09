@@ -1,0 +1,171 @@
+<!--上传-->
+<template>
+  <button type="primary" @tap="choseImages">选择图片上传</button>
+  <button type="primary" @tap="choseVideos">选择视频上传</button>
+  <view wx:if = "{{uploading}}">
+    <view wx:for-items="{{progress}}" wx:for-item="item" wx:key="key">
+      <progress percent="{{item}}" show-info stroke-width="12"/>
+    </view>
+  </view>
+  <view wx:if = "{{uploading}}">上传成功了{{count}}个文件。</view>
+  <modal hidden="{{hidden}}" title="上传失败" confirm-text="确定" cancel-text="取消" bindcancel="cancel" bindconfirm="confirm" no-cancel="{{nocancel}}">
+    一些图片（视频）上传失败。
+  </modal>
+</template>
+<script>
+  import wepy from 'wepy';
+  import api from "../api/api";
+  import tip from '@/utils/tip';
+  import {
+    USER_SPECICAL_INFO
+  } from '@/utils/constant';
+  export default class FilesPage extends wepy.page {
+
+    data = {
+      videoPath: [],
+      imagesPath: [],
+      uploading: "",
+      progress: [],
+      hidden: true,
+      count: 0
+    }
+    components = {
+
+    }
+    onLoad(option) {
+
+    }
+    onShow(){
+
+    }
+    computed = {
+
+    }
+    async getUploadParam(type){
+      let res = await api.getUploadParam({
+        query:{
+          type: type
+        }
+      })
+      return res.data.data;
+    }
+    uploadFiles(tempFilePaths,type){
+      let that = this;
+      that.uploading = true;
+      that.count = 0;
+      this.getUploadParam(type).then(res =>{
+        for(let i = 0; i < tempFilePaths.length; i++){
+          let filePath = tempFilePaths[i];
+          console.log("imagePath",filePath)
+          let fileName = filePath.split("/")[filePath.split("/").length - 1];
+          const uploadTask = wx.uploadFile({
+            url: 'https://'+res.host,
+            filePath: filePath,
+            formData: {
+              Filename: res.dir + "/" + fileName,
+              success_action_status: 200,
+              key: res.dir + "/" + fileName,
+              OSSAccessKeyId: res.accessid,
+              policy: res.policy,
+              Signature: res.signature
+            },
+            method: 'POST',
+            name: 'file',
+            header: {
+              'content-type': 'multipart/form-data'
+            },
+            success: (resp) => {
+              console.log(resp)
+              that.count += 1;
+              that.$apply()
+            },
+            fail: (res) => {
+              console.log(res)
+              that.openErrorModal()
+              that.$apply()
+            },
+            complete: () => {
+              wx.hideToast();
+            }
+          })
+          uploadTask.onProgressUpdate((res) => {
+            that.progress[i] = res.progress;
+            that.$apply()
+            console.log('上传进度', res.progress)
+            console.log('已经上传的数据长度', res.totalBytesSent)
+            console.log('预期需要上传的数据总长度', res.totalBytesExpectedToSend)
+          })
+        }
+        console.log(res)
+      })
+    }
+    openErrorModal(){
+      this.hidden = false;
+    }
+    openSuccessModal(){
+      this.hidden = false;
+    }
+    methods = {
+      cancel(){
+        this.hidden = true;
+      },
+      confirm(){
+        this.hidden = true;
+      },
+      choseImages(){
+        var that = this
+        wx.chooseImage({
+          count: 9,
+          sizeType: ['original', 'compressed'],
+          sourceType: ['album', 'camera'],
+          success(res) {
+            // tempFilePath可以作为img标签的src属性显示图片
+            const tempFilePaths = res.tempFilePaths
+            that.imagesPath = tempFilePaths
+            that.uploadFiles(tempFilePaths,"images")
+            console.log(res)
+            that.$apply()
+          },
+          fail(res){
+            console.log(res)
+            that.openErrorModal()
+            that.$apply()
+          }
+        })
+      },
+      choseVideos(){
+        var that = this
+        wx.chooseVideo({
+          sourceType: ['album', 'camera'],
+          maxDuration: 60,
+          camera: 'back',
+          success(res) {
+            console.log(res)
+            that.videoPath = [res.tempFilePath];
+            that.uploadFiles(that.videoPath,"videos")
+            that.$apply()
+          }
+        })
+      },
+      choseFiles(){
+
+      }
+
+    }
+    onUnload() {
+
+    }
+    events = {
+      refreshAddList(msg){
+
+      }
+    }
+
+  }
+
+</script>
+<style lang="less">
+
+
+</style>
+
