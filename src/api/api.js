@@ -24,7 +24,11 @@ const getUploadParam = (params) => wxRequest(params, apiMall + '/files/postParam
 const accessUrl = (params) => wxRequest(params, apiMall + '/files/accessUrl');
 
 const accessUrls = (params) => wxRequest(params, apiMall + '/files/accessUrls');
+
+const deleteFile = (params) => wxRequest(params, apiMall + '/files/delete');
+
 export default {
+  deleteFile,
   accessUrl,
   accessUrls,
   getUploadParam,

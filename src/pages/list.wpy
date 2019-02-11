@@ -4,7 +4,7 @@
     <view class="section section_gap">
       <view class="flex-wrp" style="flex-direction:row; margin: 26rpx;" wx:for-items="{{files}}" wx:key="key">
         <view class="flex-item bc_green" wx:for-items="{{item}}" wx:for-item="obj" wx:key="key" >
-          <image style="width: 170rpx; height: 170rpx; background-color: #eeeeee;" mode="aspectFill" src="{{obj.url}}" @tap="clickImage('{{obj}}')" ></image>
+          <image bindlongtap="longTap('{{obj}}')" @touchend="touchend" style="width: 170rpx; height: 170rpx; background-color: #eeeeee;" mode="aspectFill" src="{{obj.url}}" @tap="clickImage('{{obj}}')" ></image>
         </view>
       </view>
       <view class="intro" wx:if="{{!start}}">没有更多了</view>
@@ -28,7 +28,8 @@
           start: '',
           size: 40,
           fullUrl: '',
-          urls: []
+          urls: [],
+          lock: false
         }
 
         components = {
@@ -65,7 +66,7 @@
         onLoad() {
           this.getFilesPage("",this.size);
         }
-        getFilesPage(start, size){
+        getFilesPage(start, size, replace){
           let that = this;
           this.start = start || this.start;
           this.size = size || this.size;
@@ -83,11 +84,15 @@
               if(this.files.length === 0){
                 this.files = res.data.data.result;
               }else{
-                let temp = this.files.concat(res.data.data.result);
+                let temp = {};
+                if(replace){
+                  temp = res.data.data.result;
+                }else{
+                  temp = this.files.concat(res.data.data.result);
+                }
                 this.files = temp;
               }
               this.start = res.data.data.start;
-
             }
             that.$apply()
             console.log(this.files)
@@ -130,8 +135,44 @@
           }
           return res.data.data;
         }
+        async deleteFile(name){
+          await api.deleteFile({
+            query: name,
+            method: 'DELETE'
+          })
+        }
         methods = {
+          touchend(){
+            console.log("touchend")
+            setTimeout(() => {
+              this.lock = false;
+            }, 100);
+          },
+          longTap(obj){
+            let that = this;
+            that.lock = true;
+            console.log("long tap")
+            wx.showActionSheet({
+              itemList: ['删除图片', '复制链接'],
+              success(res) {
+                if(res.tapIndex === 0){ // 删除图片
+                  that.deleteFile(obj.name).then(()=>{
+                    that.start = '';
+                    that.getFilesPage("",that.size,true);
+                  });
+                }else if(res.tapIndex === 1){ // 复制链接
+                  wx.setClipboardData(obj.url)
+                }
+              },
+              fail(res) {
+                console.log(res.errMsg)
+              }
+            })
+          },
           clickImage(item){
+            if(this.lock){
+              return;
+            }
             let that = this;
             console.log(item)
             that.accessUrls(item.name).then(res =>{
