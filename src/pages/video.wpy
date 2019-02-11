@@ -2,11 +2,12 @@
 <template>
   <view class="section">
     <view class="section section_gap">
-      <view class="flex-wrp" style="flex-direction:row;" wx:for-items="{{files}}" wx:key="key">
+      <view class="flex-wrp" style="flex-direction:row; margin: 26rpx;" wx:for-items="{{files}}" wx:key="key">
         <view class="flex-item bc_green" wx:for-items="{{item}}" wx:for-item="obj" wx:key="key" >
           <video style="width: 170rpx; height: 170rpx; background-color: #eeeeee;" src="{{obj.url}}"  controls></video>
         </view>
       </view>
+      <view class="intro" wx:if="{{!start}}">没有更多了</view>
     </view>
   </view>
 </template>
@@ -32,6 +33,21 @@
         components = {
 
         }
+        /**
+         *
+         *上拉触底
+         */
+        onReachBottom(){
+          if(this.start){
+            this.getFilesPage(this.start,this.size);
+          }else{
+
+          }
+          console.log("上拉触底")
+        }
+        /**
+         * 下拉刷新
+         */
         onPullDownRefresh() {
           this.files = [];
           this.start = '';
@@ -123,6 +139,10 @@
   .bc_green {background: green;width:170rpx; height: 170rpx; margin: 2rpx;}
   .bc_red {background: red;width:170rpx; height: 170rpx; margin: 2rpx;}
   .bc_blue {background: blue;width:170rpx; height: 170rpx; margin: 2rpx;}
+  .intro {
+    margin: 30rpx;
+    text-align: center;
+  }
 
 </style>
 

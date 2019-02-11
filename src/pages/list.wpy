@@ -2,11 +2,12 @@
 <template>
   <view class="section">
     <view class="section section_gap">
-      <view class="flex-wrp" style="flex-direction:row;" wx:for-items="{{files}}" wx:key="key">
+      <view class="flex-wrp" style="flex-direction:row; margin: 26rpx;" wx:for-items="{{files}}" wx:key="key">
         <view class="flex-item bc_green" wx:for-items="{{item}}" wx:for-item="obj" wx:key="key" >
-          <image style="width: 170rpx; height: 170rpx; background-color: #eeeeee;" mode="aspectFit" src="{{obj.url}}" @tap="clickImage('{{obj}}')" ></image>
+          <image style="width: 170rpx; height: 170rpx; background-color: #eeeeee;" mode="aspectFill" src="{{obj.url}}" @tap="clickImage('{{obj}}')" ></image>
         </view>
       </view>
+      <view class="intro" wx:if="{{!start}}">没有更多了</view>
     </view>
   </view>
 </template>
@@ -25,13 +26,30 @@
         data = {
           files: [],
           start: '',
-          size: 100,
-          fullUrl: ''
+          size: 40,
+          fullUrl: '',
+          urls: []
         }
 
         components = {
 
         }
+        /**
+         *
+         *上拉触底
+         */
+        onReachBottom(){
+          if(this.start){
+            this.getFilesPage(this.start,this.size);
+          }else{
+
+          }
+          console.log("上拉触底")
+        }
+
+        /**
+         * 下拉刷新
+         */
         onPullDownRefresh() {
           this.files = [];
           this.start = '';
@@ -65,7 +83,8 @@
               if(this.files.length === 0){
                 this.files = res.data.data.result;
               }else{
-                this.files.push(res.data.data.result)
+                let temp = this.files.concat(res.data.data.result);
+                this.files = temp;
               }
               this.start = res.data.data.start;
 
@@ -96,14 +115,30 @@
           }
           return res.data.data;
         }
+        async accessUrls(name){
+          let that = this;
+          let res = await api.accessUrls({
+            query: {
+              name: name,
+              files: this.files
+            },
+            method: 'POST'
+          })
+          if(res.data.data){
+            that.urls = res.data.data;
+            that.$apply()
+          }
+          return res.data.data;
+        }
         methods = {
           clickImage(item){
             let that = this;
             console.log(item)
-            that.accessUrl(item.name).then(res =>{
+            that.accessUrls(item.name).then(res =>{
+              console.log(res)
               wx.previewImage({
-                current: res, // 当前显示图片的http链接
-                urls: [res] // 需要预览的图片http链接列表
+                current: res.url, // 当前显示图片的http链接
+                urls: res.urls // 需要预览的图片http链接列表
               })
             })
 
@@ -126,6 +161,10 @@
   .bc_green {background: green;width:170rpx; height: 170rpx; margin: 2rpx;}
   .bc_red {background: red;width:170rpx; height: 170rpx; margin: 2rpx;}
   .bc_blue {background: blue;width:170rpx; height: 170rpx; margin: 2rpx;}
+  .intro {
+    margin: 30rpx;
+    text-align: center;
+  }
 
 </style>
 

@@ -22,8 +22,11 @@ const queryFiles = (params) => wxRequest(params, apiMall + '/files/list/short');
 const getUploadParam = (params) => wxRequest(params, apiMall + '/files/postParams');
 
 const accessUrl = (params) => wxRequest(params, apiMall + '/files/accessUrl');
+
+const accessUrls = (params) => wxRequest(params, apiMall + '/files/accessUrls');
 export default {
   accessUrl,
+  accessUrls,
   getUploadParam,
   queryFiles,
   wxJsCode2Session,
