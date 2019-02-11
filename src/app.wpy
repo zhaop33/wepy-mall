@@ -32,23 +32,23 @@ export default class extends wepy.app {
       "list": [{
         "pagePath": "pages/list",
         "text": "图片",
-        "iconPath": "images/icon_home.png",
-        "selectedIconPath": "images/icon_home_active.png"
+        "iconPath": "images/picture.png",
+        "selectedIconPath": "images/picture_active.png"
       }, {
         "pagePath": "pages/video",
         "text": "视频",
-        "iconPath": "images/icon_classify.png",
-        "selectedIconPath": "images/icon_classify_active.png"
+        "iconPath": "images/video.png",
+        "selectedIconPath": "images/video_active.png"
       }, {
         "pagePath": "pages/upload",
         "text": "上传",
-        "iconPath": "images/icon_shop_cart.png",
-        "selectedIconPath": "images/icon_shop_cart_active.png"
+        "iconPath": "images/upload.png",
+        "selectedIconPath": "images/upload_active.png"
       }, {
         "pagePath": "pages/info",
         "text": "我",
-        "iconPath": "images/icon_info.png",
-        "selectedIconPath": "images/icon_info_active.png"
+        "iconPath": "images/info.png",
+        "selectedIconPath": "images/info_active.png"
       }]
     },
     networkTimeout: {
