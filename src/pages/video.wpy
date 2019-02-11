@@ -3,8 +3,8 @@
   <view class="section">
     <view class="section section_gap">
       <view class="flex-wrp" style="flex-direction:row; margin: 26rpx;" wx:for-items="{{files}}" wx:key="key">
-        <view class="flex-item bc_green" wx:for-items="{{item}}" wx:for-item="obj" wx:key="key" >
-          <video bindlongtap="longTap('{{obj}}')" @touchend="touchend" style="width: 170rpx; height: 170rpx; background-color: #eeeeee;" src="{{obj.url}}"  controls></video>
+        <view class="flex-item bc_green" >
+          <video bindlongtap="longTap('{{item}}')" src="{{item.url}}" poster="{{item.poster}}" style="width: 700rpx; height: 550rpx; background-color: #eeeeee;"></video>
         </view>
       </view>
       <view class="intro" wx:if="{{!start}}">没有更多了</view>
@@ -27,7 +27,9 @@
           files: [],
           start: '',
           size: 100,
-          fullUrl: ''
+          fullUrl: ["111122"],
+          lock: false,
+          videoContent: {}
         }
 
         components = {
@@ -61,12 +63,13 @@
         }
         onLoad() {
           this.getFilesPage("",this.size);
+          this.videoContent = wx.createVideoContext("videoPlayer")
         }
         getFilesPage(start, size,replace){
           let that = this;
           this.start = start || this.start;
           this.size = size || this.size;
-          api.queryFiles({
+          api.selectVideo({
             query:{
               start: this.start,
               size: this.size,
@@ -129,7 +132,6 @@
           },
           longTap(obj){
             let that = this;
-            that.lock = true;
             console.log("long tap")
             wx.showActionSheet({
               itemList: ['删除视频', '复制链接'],
@@ -158,13 +160,16 @@
             })
           },
           clickImage(item){
+            if(this.lock){
+              return;
+            }
             let that = this;
-            console.log(item)
+            console.log(item,key)
             that.accessUrl(item.name).then(res =>{
-              wx.previewImage({
-                current: res, // 当前显示图片的http链接
-                urls: [res] // 需要预览的图片http链接列表
-              })
+              console.log(res)
+              that.fullUrl[key] = res;
+              that.$apply()
+              that.videoContent.play();
             })
 
           }
@@ -183,7 +188,7 @@
     margin-bottom: 20rpx;
   }
   .flex-wrp {display: flex;}
-  .bc_green {background: green;width:170rpx; height: 170rpx; margin: 2rpx;}
+  .bc_green {background: #ffffff;margin: 2rpx;}
   .bc_red {background: red;width:170rpx; height: 170rpx; margin: 2rpx;}
   .bc_blue {background: blue;width:170rpx; height: 170rpx; margin: 2rpx;}
   .intro {
