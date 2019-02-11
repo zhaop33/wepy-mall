@@ -26,7 +26,14 @@
       avatarUrl: "",
       nickName: ""
     }
-
+    onPullDownRefresh() {
+      wepy.showNavigationBarLoading()
+      setTimeout(()=>{
+        wepy.stopPullDownRefresh()
+        wepy.hideNavigationBarLoading()
+        this.$apply()
+      },100)
+    }
     onLoad() {
       let that = this;
       let userInfo = wepy.getStorageSync(USER_INFO);

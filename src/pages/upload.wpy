@@ -32,6 +32,20 @@
     components = {
 
     }
+    onPullDownRefresh() {
+      this.videoPath = [];
+      this.imagesPath = '';
+      this.uploading = "";
+      this.progress = [];
+      this.hidden = true;
+      this.count = 0;
+      wepy.showNavigationBarLoading()
+      setTimeout(()=>{
+        wepy.stopPullDownRefresh()
+        wepy.hideNavigationBarLoading()
+        this.$apply()
+      },500)
+    }
     onLoad(option) {
 
     }
@@ -152,6 +166,7 @@
       }
 
     }
+
     onUnload() {
 
     }
