@@ -27,7 +27,10 @@ const accessUrls = (params) => wxRequest(params, apiMall + '/files/accessUrls');
 
 const deleteFile = (params) => wxRequest(params, apiMall + '/files/delete');
 
+const selectVideo = (params) => wxRequest(params, apiMall + "/files/list/video");
+
 export default {
+  selectVideo,
   deleteFile,
   accessUrl,
   accessUrls,

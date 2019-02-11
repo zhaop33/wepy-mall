@@ -140,7 +140,16 @@
                     that.getFilesPage("",that.size,true);
                   });
                 }else if(res.tapIndex === 1){ // 复制链接
-                  wx.setClipboardData(obj.url)
+                  wx.setClipboardData({
+                    data: obj.url,
+                    success(res) {
+                      wx.getClipboardData({
+                        success(res) {
+                          console.log(res.data) // data
+                        }
+                      })
+                    }
+                  })
                 }
               },
               fail(res) {
