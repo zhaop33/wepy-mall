@@ -15,7 +15,8 @@ import {
   SYSTEM_INFO,
   USER_SPECICAL_INFO,
   USER_INFO,
-  TOKEN
+  TOKEN,
+  ENCRYPTE_DATA
 } from '@/utils/constant';
 export default class Authorize extends wepy.page {
   config = {
@@ -36,6 +37,7 @@ export default class Authorize extends wepy.page {
         if (res.code) {
           let systemInfo = wepy.getSystemInfoSync();
           wepy.setStorageSync(SYSTEM_INFO, systemInfo);
+          wepy.setStorage(ENCRYPTE_DATA,e.detail.encryptedData)
           let rlt = await api.wxJsCode2Session({
             query: {
               encryptedData: e.detail.encryptedData,
